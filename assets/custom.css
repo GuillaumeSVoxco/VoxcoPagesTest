@@ -1,0 +1,23 @@
+.tsd-navigation.primary > * > :not(.tsd-kind-module) {
+    display: none;
+}
+
+.tsd-navigation.primary > * > .tsd-kind-module > ul {
+    display: none;
+}
+
+/* .tsd-navigation.primary {
+    display: none;
+} */
+
+.tsd-kind-module {
+    display: list-item;
+}
+
+#tsd-filter {
+    display: none;
+}
+
+.tsd-hierarchy {
+    display: none;
+}
