@@ -5,4 +5,96 @@
 <p>This is the SurveyEngineJS&#39;s API.</p>
 <p><a href="./classes/index.PublicApi.html">Available API methods&#39; documentation.</a></p>
 <p>You can run custom javascript in the survey by attaching listeners to <a href="./interfaces/events.VoxcoEventTypes.html">events</a>.</p>
+<hr>
+
+<a href="#custom-css-tutorial" id="custom-css-tutorial" style="color: inherit; text-decoration: none;">
+  <h1>Custom CSS tutorial</h1>
+</a>
+<p>The goal with S2 was to simplify the style injection to make a uniformed
+theme, without having to copy paste style attributes on every survey elements. This is why for instance that we are working with only two colors, the primary and secondary. The theme editor takes those two colors and used them on all the question types, creating a specific color code for our survey.</p>
+<p>Attributes like the primary and secondary colors are held by a theme builder that looks like the following:</p>
+<pre><code class="language-CSS"><br/><span class="hl-0">/* [...] */</span><br/><span class="hl-1">BaseFontSize: 18,</span><br/><span class="hl-1">BorderRadius: 0,</span><br/><span class="hl-1">BorderWidth: 1,</span><br/><span class="hl-1">BottomNavigationPosition: &quot;wrapper&quot;, // wrapper | floating</span><br/><span class="hl-1">ButtonBackground: &quot;</span><span class="hl-2">#F0EFEF&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">ChoiceHeight: 60,</span><br/><span class="hl-1">ChoiceSpacing: 27,</span><br/><span class="hl-0">/* [...] */</span><br/>
+</code></pre>
+<p>This seems easy enough to modify, and you&#39;d be right to think so. When we talk about an advanced/dev mode, we are referring to make available to the users all of those attributes.</p>
+
+<a href="#react" id="react" style="color: inherit; text-decoration: none;">
+  <h3>REACT</h3>
+</a>
+<p>S2 is built using the REACT framework, a JavaScript technology. From the list above, the scripts compile and render a survey based on the inputs that were given to the builder.</p>
+<p>When compiling, REACT also creates a bunch of different classes for each question and elements in my final output. And for custom CSS, that&#39;s on what we are going to focus in the scope of this workshop.</p>
+
+<a href="#custom-css" id="custom-css" style="color: inherit; text-decoration: none;">
+  <h2>Custom CSS</h2>
+</a>
+<p>To add custom CSS, jump into the Theme Editor and make sure your survey is using the new look and feel. You can find the custom CSS section under the advanced settings:</p>
+<p><img src="https://charlesdoucet.com/wp-content/uploads/2021/03/theme-editor-advanced-settings.png" alt="custom css"></p>
+<p>From here you can access all the elements in your survey. What you need to do now, is targeting the good elements and their classes.</p>
+
+<a href="#targeting" id="targeting" style="color: inherit; text-decoration: none;">
+  <h3>Targeting</h3>
+</a>
+<p>First thing first, try to avoid talking to any id or classes containing numbers or weird letter codes. Because REACT compiles your survey in real time, there&#39;s a good chance that those numbers and IDs will change when your survey compiles.</p>
+<p>So what should I talk to? Let&#39;s look at the following example.</p>
+<p>From my browser&#39;s inspector, I get this after targeting a choice from my radio button question:</p>
+<p><img src="https://charlesdoucet.com/wp-content/uploads/2021/03/inspector-radio-button-css.png" alt="browser inspector"></p>
+<p>Let&#39;s say I want to talk to every radio buttons in my survey. What element should I target in my CSS?</p>
+<pre><code class="language-CSS"><br/><span class="hl-0">/* IDs */</span><br/><span class="hl-3">#V_RADIO_C_1_INPUT</span><br/><br/><span class="hl-0">/* Classes */</span><br/><span class="hl-3">.choice-0-2-142</span><br/><span class="hl-3">.choice</span><br/><span class="hl-3">.choice-d0-0-2-150</span><br/><span class="hl-3">.radio-button</span><br/>
+</code></pre>
+<p>Let&#39;s see which of these target could be the perfect candidate to be targeted by my CSS:</p>
+<ul>
+<li><p><strong>#V_RADIO_C_1_INPUT</strong> : This ID can be reached, but attributing a style attribute here won&#39;t apply it to all of my radio buttons. Therefore, ids should generally be ignored in custom CSS.</p>
+</li>
+<li><p><strong>.choice-0-2-142 &amp; .choice-d0-0-2-150</strong> : Both classes as reference numbers in their names. These numbers are subject to change every time a survey is compiled. Thus, we should never try to target this type of class.</p>
+</li>
+<li><p><strong>choice</strong> : A good candidate. However, it is a bit vague since a choice can also be present in other question types. Meaning that attributing style here would probably affect other questions available in my survey.</p>
+</li>
+<li><p><strong>radio-button</strong> : The best candidate that we can use. It targets the button div of every radio buttons. Perfect!</p>
+</li>
+</ul>
+
+<a href="#states" id="states" style="color: inherit; text-decoration: none;">
+  <h3>States</h3>
+</a>
+<p>When injecting custom CSS, it&#39;s important not to forget about states! While the survey engine handles them in any themes, whenever we target an element for some custom CSS, we are cutting the flow of the theme builder.</p>
+<p>In other words, we are adding style after the theme has been built. But no worries! We can work with that. We only need to also talk to our states in CSS.</p>
+<p>Let&#39;s say I want to change my background-color of my radio buttons:</p>
+<pre><code class="language-CSS"><br/><span class="hl-3">.radio-button</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">background-color</span><span class="hl-1">: </span><span class="hl-5">blue</span><span class="hl-1">;</span><br/><span class="hl-1">}</span><br/>
+</code></pre>
+<p>I would need here to specify the background-color of its hover state if I don&#39;t want the theme to force a compiled hover state:</p>
+<pre><code class="language-CSS"><br/><span class="hl-3">.radio-button</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">background-color</span><span class="hl-1">: </span><span class="hl-5">blue</span><span class="hl-1">;</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-3">.radio-button:hover</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">background-color</span><span class="hl-1">: </span><span class="hl-5">red</span><span class="hl-1">;</span><br/><span class="hl-1">}</span><br/>
+</code></pre>
+<p>Finally, since this is a radio button, I can expect the button to also have a selected state. Note that adding a state like <em>active</em> or <em>selected</em> to our <code>.radio-button</code> won&#39;t do here.</p>
+<p>Like in other webpages where JavaScripts handles states in the back end, we need to look if a class gets added to the same HTML object with the help of the inspector.</p>
+<p><img src="https://charlesdoucet.com/wp-content/uploads/2021/03/selected-class-workshop.png" alt="selected class"></p>
+<p>In this case, we can see that a class gets added to the same div where my <code>.radio-button</code> class lives. The <code>choice--selected</code> class has been injected by JS when a user selects one of the radio-button.</p>
+<p>That means that I can also target it in my custom CSS to change its background-color.</p>
+<pre><code class="language-CSS"><br/><span class="hl-3">.radio-button</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">background-color</span><span class="hl-1">: </span><span class="hl-5">blue</span><span class="hl-1">;</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-3">.radio-button:hover</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">background-color</span><span class="hl-1">: </span><span class="hl-5">red</span><span class="hl-1">;</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-3">.radio-button.choice--selected</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">background-color</span><span class="hl-1">: </span><span class="hl-5">pink</span><span class="hl-1">;</span><br/><span class="hl-1">}</span><br/>
+</code></pre>
+<blockquote>
+<p>Note : In the previous example, I have a special syntax for linking two classes together. This improves my targeting since it tells my CSS to look for an HTML element containing radio-button and choice--selected in its class declaration.</p>
+<p>If I would have input a space between both classes in my CSS, this code would not work. The CSS would have tried to find a choice--selected class inside one of the radio-button&#39;s HTML children.</p>
+</blockquote>
+
+<a href="#transition" id="transition" style="color: inherit; text-decoration: none;">
+  <h3>Transition</h3>
+</a>
+<p>In the same fashion as the states, it&#39;s also important to specify transitions when needs be. Again, adding change of states for different custom CSS attributes will break the links with what the theme builder built.</p>
+<p>Just keep in mind that if you want smooth transitions between your states, you&#39;ll need to specify it in your custom CSS as well (even to replicate what S2 is doing by default).</p>
+
+<a href="#tips-and-tricks" id="tips-and-tricks" style="color: inherit; text-decoration: none;">
+  <h2>Tips and Tricks</h2>
+</a>
+<p>Here&#39;s a short collection of tips and tricks to keep in mind while working with custom CSS within S2.</p>
+<ul>
+<li><p><strong>Use External Tool</strong> : S2 is compiling in real time, meaning that changing the custom CSS directly in its dedicated box might slow down your experience. Try writing down your code in and external tool like Visual Studio. That way you&#39;ll only ask once the survey engine to compile when you paste your code in the CSS edit box.</p>
+</li>
+<li><p><strong>Check for the simplest class name</strong> : When targeting an element, try to focus on getting the most intuitive class name. Avoid taking the class containing numbers and weird symbols. The simplest names are the one that are unlikely to change if you modify your questionnaire or compile a theme.</p>
+</li>
+<li><p><strong>Avoid using !important</strong> : It might be tempting to use the !important shortcut, but this will bring a lot of problems down the road when your custom becomes heavier. Just keep your distance from it, it&#39;s bad.</p>
+</li>
+<li><p><strong>Work with your inspector</strong> : It&#39;s your best friend for creating custom CSS. Take advantage of its targeting tool and try to inject your CSS attributes directly from the inspector to test the output.</p>
+</li>
+<li><p><strong>Careful with non-friendly responsive attributes</strong> : Some attributes will break the responsiveness. Since the survey engine already manages lots of responsive style, be careful when using media queries in your custom. Also, positions and floats are going to be hard to work with in this context.</p>
+</li>
+</ul>
 </div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Modules</a></li><li class=" tsd-kind-module"><a href="modules/events.html">events</a></li><li class=" tsd-kind-module"><a href="modules/index.html">index</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li><li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>
